@@ -1,0 +1,137 @@
+== in AWS
+Create VPC 
+
+-- ON ALL
+sudo su -
+echo "10.0.0.??    ip-10-0-0-??.ec2.internal     ip-10-0-0-??" | tee -a /etc/hosts
+echo "10.0.0.??    ip-10-0-0-??.ec2.internal     ip-10-0-0-??" | tee -a /etc/hosts
+echo "10.0.0.??    ip-10-0-0-??.ec2.internal     ip-10-0-0-??" | tee -a /etc/hosts
+
+--- for each node
+chmod 700 /etc/sudoers
+echo "%sysadmin ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers
+chmod 440 /etc/sudoers
+groupadd sysadmin
+sudo /usr/sbin/useradd -m -g users -G sysadmin cluster_admin
+sudo -iu cluster_admin
+ssh-keygen -t rsa
+PRESS RETURN
+PRESS RETURN
+chmod 700 ~/
+chmod 700 ~/.ssh
+cat ~/.ssh/id_rsa.pub >~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+cat ~/.ssh/id_rsa.pub
+cat ~/.ssh/id_rsa
+-- copy to local file cluster.keys
+
+sudo /usr/sbin/useradd -m -g users vora
+sudo passwd vora
+-- enter password
+
+exit
+exit
+-- make sure you are ec2-user going forward
+id
+mkdir /home/ec2-user/media
+cd /home/ec2-user/media
+pwd
+ls
+
+wget https://www.dropbox.com/??????/SLES11-compat-c%2B%2B.tar?dl=0 -O SLES11-compat-c++.tar
+ls
+
+mkdir /home/ec2-user/media/tmp
+tar -xf SLES11-compat-c++.tar -C tmp
+sudo zypper -n install tmp/*rpm
+
+exit
+
+-- ON EACH NODE
+sudo su -
+echo "10.0.0.??    ip-10-0-0-??.ec2.internal     ip-10-0-0-??" | tee -a /etc/hosts
+echo "10.0.0.??    ip-10-0-0-??.ec2.internal     ip-10-0-0-??" | tee -a /etc/hosts
+echo "10.0.0.??    ip-10-0-0-??.ec2.internal     ip-10-0-0-??" | tee -a /etc/hosts
+
+chmod 700 /etc/sudoers
+echo "%sysadmin ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers
+chmod 440 /etc/sudoers
+groupadd sysadmin
+sudo /usr/sbin/useradd -m -g users -G sysadmin cluster_admin
+sudo -iu cluster_admin
+mkdir ~/.ssh
+chmod 700 ~/.ssh
+
+echo "INSERT THE KEY HERE" > ~/.ssh/authorized_keys
+-- past in line 2 from cluster.keys
+-- like ;
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDE/dntMmsKAwtWMNRxnhAskY3Gnra5K1ecDXwpeZLMrWahfRB60lP88gWG0LsgsvkSPSzK10ucOkRqsh5QoyrajO2NvvmNz/lofC+jUCR/eGqWtoHcf2FtnvC+A3niw6VhAgycFOYFdU45amKfj3mt5kAVZtOM+wfGK+3POj7o8????????????????????????????????????64KtmOqPgtkHXaQITzgrCVBR4mLtruiolPNbkaDWhYoiXGvRSfmJQWc0D6RrV6alC7KcbiHtWfpsCykgZRmDOTFro9WPuFJTXzFmlHFYUQIZGS4/KDXr7AcKlHYBfMVSZ cluster_admin@ip-10-0-0-??" > ~/.ssh/authorized_keys
+cat ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+exit
+exit
+
+-- make sure you are ec2-user going forward
+id
+mkdir /home/ec2-user/media
+cd /home/ec2-user/media
+pwd
+ls
+
+wget https://www.dropbox.com/??????/SLES11-compat-c%2B%2B.tar?dl=0 -O SLES11-compat-c++.tar
+ls
+
+mkdir /home/ec2-user/media/tmp
+tar -xf SLES11-compat-c++.tar -C tmp
+sudo zypper -n install tmp/*rpm
+exit
+
+-- BACK ON MASTER
+-- make sure you are cluster_admin
+sudo su -
+su - cluster_admin
+cd /etc/zypp/repos.d
+
++++++++++++++++
+AMBARI
++++++++++++++++
+
+sudo wget http://public-repo-1.hortonworks.com/ambari/\suse11/1.x/updates/1.7.0/ambari.repo
+sudo zypper ref
+sudo zypper -n install ambari-server
+sudo /usr/sbin/ambari-server setup
+ACCEPT DEFAULTS
+sudo /usr/sbin/ambari-server start
+
+-- Open Port 8080 in CAL, but use Chrome on Windows Image
+-- show how to change admin password
+-- Create Cluster; When selecting key, use the bottom Private one (when cat'ed out in keys.txt)
+-- use "cluster_admin" user
+-- Install HDFS, Yarn, Zookeeper, naglios, ganglia
+-- assign EVERYTHING on all slaves and clients
+
++++++++++++++++
+CLOUDERA
++++++++++++++++
+
+sudo zypper addrepo -f http://archive.cloudera.com/cm5/sles/11/x86_64/cm/cloudera-manager.repo
+sudo zypper refresh
+Type 'a'
+sudo zypper install oracle-j2sdk1.7 cloudera-manager-daemons \
+cloudera-manager-server cloudera-manager-agent cloudera-manager-daemons \
+cloudera-manager-server-db-2 avro-tools crunch flume-ng hadoop-hdfs-fuse \
+hadoop-hdfs-nfs3 hadoop-httpfs hadoop-kms hbase-solr hive-hbase hive-webhcat \
+hue-beeswax hue-hbase hue-impala hue-pig hue-plugins hue-rdbms hue-search \
+hue-spark hue-sqoop hue-zookeeper impala impala-shell kite llama mahout oozie \
+pig pig-udf-datafu search sentry solr-mapreduce spark-core spark-master \
+spark-worker spark-history-server spark-python sqoop sqoop2 whirr
+
+sudo /etc/init.d/cloudera-scm-server-db start
+sudo /etc/init.d/cloudera-scm-server start
+
+Go to Browser (:7180)
+
+Do install. Don't forget to change NTP Thresholds
+
+------ Install Rest (Apache Spark, Vora, etc) on Master as per videos
+-- Notes : Make sure Vora on ALL machines in Ambari when installing
