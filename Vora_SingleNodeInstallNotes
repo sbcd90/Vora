@@ -1,0 +1,318 @@
+################################################
+## "Base Image" Steps
+################################################
+
+-- as ec2-user
+mkdir /home/ec2-user/media
+chmod 777 /home/ec2-user/media
+cd /home/ec2-user/media
+pwd
+ls
+
+-- Install Files into /home/ec2-user/media
+wget https://www.dropbox.com/??????? -O SLES11-compat-c++.tar
+wget https://www.dropbox.com/??????? -O spark-1.4.1-bin-hadoop2.6.tgz
+wget https://www.dropbox.com/??????? -O ambaripkg-1.1-ms-2.tar.gz
+wget https://www.dropbox.com/??????? -O datasourcedist-1.1.7.tar.gz
+wget https://www.dropbox.com/??????? -O zeppelin-0.5.0-incubating-JNA40.tar.gz
+ls
+
+/*
+Things you may need to do ;
+Disable Transparent Huge Pages (THP)9; 
+Install NTP time server; 
+Shut down iptables; 
+Remove php5 packages (will be re-installed later); C
+leanup residue from earlier version of OS; 
+Configure sudo to propagate proxy settings.
+*/
+
+/*
+Create user cluster_admin for cluster manager tool to manage nodes.
+Create a user vora for end users to interact with spark.
+*/
+
+sudo su -
+chmod 700 /etc/sudoers
+vi /etc/sudoers
+
+%sysadmin ALL=(ALL) NOPASSWD:ALL
+
+chmod 440 /etc/sudoers
+groupadd sysadmin
+
+sudo /usr/sbin/useradd -m -g users -G sysadmin cluster_admin
+sudo -iu cluster_admin
+ssh-keygen -t rsa
+
+chmod 700 ~/
+chmod 700 ~/.ssh
+cat ~/.ssh/id_rsa.pub >~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+cat ~/.ssh/id_rsa.pub
+cat ~/.ssh/id_rsa
+-- save keys to local files "keys.txt"
+
+sudo /usr/sbin/useradd -m -g users vora
+sudo passwd vora
+exit
+exit
+-- make sure you are ec2-user going forward
+id
+
+/*
+C++ extensions for Vora
+*/
+
+-- exit and make sure you are ec2-user
+mkdir /home/ec2-user/media/tmp
+tar -xf SLES11-compat-c++.tar -C tmp
+sudo zypper -n install tmp/*rpm
+
+################################################
+## "Ambari Install" Steps
+################################################
+
+-- make sure you are cluster_admin
+sudo su -
+su - cluster_admin
+cd /etc/zypp/repos.d
+sudo wget http://public-repo-1.hortonworks.com/ambari/\suse11/1.x/updates/1.7.0/ambari.repo
+sudo zypper ref
+sudo zypper -n install ambari-server
+sudo /usr/sbin/ambari-server setup
+
+sudo /usr/sbin/ambari-server start
+
+-- Install HDFS, Yarn, Zookeeper in Ambari
+
+################################################
+## "Spark Install" Steps
+################################################
+
+-- should already be this user
+sudo su -
+su - cluster_admin 
+cd /home/ec2-user/media
+sudo mkdir /opt/spark
+sudo tar -xvzf spark-1.4.1-bin-hadoop2.6.tgz -C /opt/spark
+
+sudo vi /etc/bash.bashrc
+-- Type G, I (in VI)
+Paste ;
+export LD_LIBRARY_PATH=/usr/lib/hadoop/lib/native
+export JAVA_HOME=/usr/jdk64/jdk1.7.0_67
+export HADOOP_CONF_DIR=/etc/hadoop/conf
+export SPARK_HOME=/opt/spark/spark-1.4.1-bin-hadoop2.6
+export SPARK_CONF_DIR=$SPARK_HOME/conf
+export PATH=$PATH:$SPARK_HOME/bin
+exit 
+-- exit cluster_admin, and go back in as cluster_admin
+su - cluster_admin
+id
+
+sudo cp $SPARK_HOME/conf/spark-defaults.conf.template $SPARK_HOME/conf/spark-defaults.conf
+
+sudo vi $SPARK_HOME/conf/spark-defaults.conf
+
+spark.driver.memory 512m
+spark.driver.extraJavaOptions -Dhdp.version=2.2.0.0-2041
+spark.executor.memory 512m
+spark.executor.cores 2
+spark.master yarn-client
+spark.velocity.hosts <comma separated list of FQDN of worker nodes>
+spark.velocity.namenodeurl <FQDN of master node>:8020
+spark.velocity.zkurls <FQDN of master node>:2181
+spark.yarn.am.extraJavaOptions -Dhdp.version=2.2.0.0-2041
+spark.yarn.queue default
+
+/*
+Setup HDFS for User Vora (also on master node)
+*/
+
+sudo -iu hdfs
+hadoop fs -mkdir /user/vora
+hadoop fs -chown vora /user/vora
+exit
+-- validate with ;
+sudo -iu vora
+echo "1,2,Hello" > test.csv
+hadoop fs -put test.csv
+hadoop fs -cat /user/vora/test.csv
+exit
+-- http://??????:8088/cluster/apps
+
+/*
+testing that spark is running on yarn with the vora user
+*/
+
+sudo -iu vora
+spark-shell
+exit
+
+spark-submit \
+--class org.apache.spark.examples.SparkPi \
+--num-executors 2 \
+$SPARK_HOME/lib/spark-examples*.jar \
+10 2>/dev/null 
+
+-- should see "Pi is roughly 3.140292"
+
+################################################
+## "Vora Install" Steps
+################################################
+
+exit
+su - ec2-user
+id
+cd /home/ec2-user/media
+ls
+
+sudo tar -xvzf ambaripkg-1.1-ms-2.tar.gz -C /var/lib/ambari-server/resources/stacks/HDP/2.2/services
+
+sudo /usr/sbin/ambari-server restart
+-- make sure all services started
+-- add vora service in ambari
+
+-- now to download Spark Vora Data Source "the extension"
+sudo -iu vora
+mkdir /home/vora/vora
+cd /home/ec2-user/media
+ls
+tar -xvzf datasourcedist-1.1.7.tar.gz -C /home/vora/vora
+-- sql extensions that SAP builds ontop on spark, ie. hierarchies
+
+-- test vora install
+cd /home/vora/vora/bin
+sh start-spark-shell.sh
+
+import org.apache.spark.sql.SapSQLContext
+
+val vc = new SapSQLContext(sc)
+
+val testsql = """
+CREATE TEMPORARY TABLE testtable (a1 int, a2 int, a3 string)
+USING com.sap.spark.vora
+OPTIONS (
+tableName "testtable",
+paths "/user/vora/test.csv"
+)"""
+
+vc.sql(testsql).show
+
+vc.sql("show tables").show
+
+vc.sql("SELECT * FROM testtable").show
+
+exit
+exit
+clear
+
+################################################
+## "Zeppelin Install" Steps
+################################################
+
+-- In Ambari, select "MapReduce2", "Configs", select "Advanced mapred-site"
+-- In "mapreduce.application.classpath", remove ":/usr/hdp/hdp. version / hadoop / lib / hadoop − lzo − 0. 6. 0. {hdp.version}.jar"
+-- restart mr and yarn
+
+sudo su vora
+cd /home/ec2-user/media
+ls
+tar -xvzf zeppelin-0.5.0-incubating-JNA40.tar.gz -C /home/vora/
+cd /home/vora/
+ls
+exit
+exit (to ec2-user)
+sudo vi /etc/bash.bashrc
+
+export ZEPPELIN_HOME=/home/vora/zeppelin-0.5.0-incubating
+export HDP_VERSION="$(hdp-select status hadoop-client | sed 's/hadoop-client - \(.*\)/\1/')"
+
+-- need to login again to putty to make following work
+exit (all)
+-- restart putty
+
+/*
+Update Config Files
+*/
+
+-- after restarting putty
+sudo su -
+su - vora
+cp $ZEPPELIN_HOME/conf/zeppelin-site.xml.template $ZEPPELIN_HOME/conf/zeppelin-site.xml
+chmod 0755 $ZEPPELIN_HOME/conf/zeppelin-site.xml
+
+sed -i "s/FlinkInterpreter<\/value>/FlinkInterpreter,\
+org.apache.spark.sql.SapSqlInterpreter<\/value>/" \
+$ZEPPELIN_HOME/conf/zeppelin-site.xml
+
+cp $ZEPPELIN_HOME/conf/zeppelin-env.sh.template $ZEPPELIN_HOME/conf/zeppelin-env.sh
+
+chmod 0755 $ZEPPELIN_HOME/conf/zeppelin-env.sh
+
+vi $ZEPPELIN_HOME/conf/zeppelin-env.sh
+
+-- insert the following at the end of the file
+export MASTER=yarn-client
+export ZEPPELIN_PORT=9099
+export ADD_JARS="$ZEPPELIN_HOME/interpreter/spark/spark-sap-datasources-assembly.jar"
+export ZEPPELIN_JAVA_OPTS="-Dhdp.version=$HDP_VERSION"
+:wq!
+
+/*
+Link Spark Velocity Data Sources To Zeppelin
+*/
+
+ln -sf /home/vora/vora/lib/spark-sap-datasources-0.0.8-SNAPSHOT-assembly.jar $ZEPPELIN_HOME/interpreter/spark/spark-sap-datasources-assembly.jar
+
+$ZEPPELIN_HOME/bin/zeppelin-daemon.sh start
+
+################################################
+## "Test Zeppelin Install" Steps
+################################################
+
+-- Open Port 9099 (http://?????:9099)
+-- also, open 9099+1 port, which is 9100
+-- check interpreter "%velo" exists
+-- create a note, add following 2 scripts ;
+
+-- from local file
+%velo CREATE TEMPORARY TABLE testtablelocal (
+  a1 int, 
+  a2 int, 
+  a3 string
+  ) USING com.sap.spark.vora
+OPTIONS (
+  tableName "testtablelocal",
+  paths "/home/vora/test.csv",
+  zkurls "?????:2181",
+  csvdelimiter ","
+)
+
+%velo SHOW TABLES
+
+%velo SELECT * FROM testtablelocal
+
+--
+-- show sudo vi $SPARK_HOME/conf/spark-defaults.conf to see hosts
+--
+
+-- hdfs file
+%velo CREATE TEMPORARY TABLE testtablehdfs (
+  a1 int, 
+  a2 int, 
+  a3 string
+  ) USING com.sap.spark.velocity
+OPTIONS (
+  tableName "testtablehdfs",
+  paths "/user/vora/test.csv",
+  hosts "????",
+  zkurls "????",
+  nameNodeUrl "????",
+  csvdelimiter ","
+)
+
+%velo SHOW TABLES
+
+%velo SELECT * FROM testtablehdfs
