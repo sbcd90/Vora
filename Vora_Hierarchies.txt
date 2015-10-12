@@ -1,0 +1,136 @@
+-- #############################
+-- ## Example of loading Data ##
+-- #############################
+sudo su -
+hostname ip-??????
+su - vora
+/*
+hdfs dfs -rm /user/vora/hierarchy.csv
+hdfs dfs -rm /user/vora/addresses.csv
+rm /home/vora/hierarchy.csv
+rm /home/vora/addresses.csv
+*/
+vi /home/vora/hierarchy.csv
+-- id, name, pred, succ, ord
+1,Diane,0,1,1
+2,Austin,1,2,1
+3,Joe,1,3,2
+4,Denys,3,4,1
+5,Jamie,3,5,2
+6,Julie,3,6,3
+7,Bob,3,7,4
+8,Phil,3,8,5
+vi /home/vora/addresses.csv
+1,Philly
+2,Palo Alto
+3,San Francisco
+4,Den Bosch
+5,Vancouver
+6,Seattle
+7,New York
+8,Paris
+hdfs dfs -ls /user/vora/
+hdfs dfs -put /home/vora/hierarchy.csv
+hdfs dfs -put /home/vora/addresses.csv
+hdfs dfs -ls /user/vora/
+hdfs dfs -cat /user/vora/hierarchy.csv
+hdfs dfs -cat /user/vora/addresses.csv
+
+s-- #############################
+-- ## Hierachies Scripting    ##
+-- #############################
+
+/*
+import com.sap.spark.vora.client._
+ClusterUtils.clearZooKeeperCatalog("ip-??????:2181")
+*/
+
+import org.apache.spark.sql._
+
+val sqlc = new SapSQLContext(sc)
+
+// create hierarchy_table
+sqlc.sql(s"""
+CREATE TEMPORARY TABLE hierarchy_table
+(id INTEGER, name VARCHAR(200), pred INTEGER, succ INTEGER, ord INTEGER) 
+USING com.sap.spark.vora 
+OPTIONS
+(
+tableName "hierarchy_table", 
+zkUrls "ip-??????:2181", 
+namenodeurl "ip-??????:8020", 
+hosts "ip-??????",
+paths "/user/vora/hierarchy.csv"
+)
+""".stripMargin)
+
+sqlc.sql("select * from hierarchy_table").show
+
+// create addresses table (to showcase hierarchy joins with regular relations)
+sqlc.sql(s"""
+CREATE TEMPORARY TABLE addresses
+(id INTEGER, address VARCHAR(200)) 
+USING com.sap.spark.vora 
+OPTIONS
+(
+tableName "addresses", 
+zkUrls "ip-??????:2181", 
+namenodeurl "ip-??????:8020", 
+hosts "ip-??????",
+paths "/user/vora/addresses.csv"
+)
+""".stripMargin)
+
+sqlc.sql("select * from addresses").show
+
+sqlc.sql("show tables").show
+
+// create view of hierarchy
+sqlc.sql("CREATE VIEW HV AS SELECT * FROM HIERARCHY (USING hierarchy_table AS v JOIN PARENT u ON v.pred = u.succ START WHERE pred = 0 SET Node) AS H")
+
+sqlc.sql("show tables").show
+
+sqlc.sql("select * from hierarchy_table").show
+sqlc.sql("select * from HV").show
+
+// minimal hierarchy query
+sqlc.sql("SELECT name, IS_ROOT(Node) FROM HV").collect()
+sqlc.sql("SELECT name, IS_ROOT(Node) FROM HV WHERE IS_ROOT(Node) = true").collect()
+
+// Hierarchy self-join to get children
+sqlc.sql("SELECT A.name, B.name FROM HV A, HV B WHERE IS_CHILD(A.Node, B.Node)").collect()
+
+// Hierarchy self-join to get parent
+sqlc.sql("SELECT A.name, B.name FROM HV A, HV B WHERE IS_PARENT(A.Node, B.Node)").collect()
+
+// Hierarchy self-join to get sibling
+sqlc.sql("SELECT A.name, B.name FROM HV A, HV B WHERE IS_SIBLING(A.Node, B.Node)").collect()
+
+// Hierarchy self-join to get descendant
+sqlc.sql("SELECT A.name, B.name FROM HV A, HV B WHERE IS_DESCENDANT(A.Node, B.Node)").collect()
+
+// Hierarchy self-join to get ancestor
+sqlc.sql("SELECT A.name, B.name FROM HV A, HV B WHERE IS_ANCESTOR(A.Node, B.Node)").collect()
+
+// Hierarchy self-join to get following
+sqlc.sql("SELECT A.name, B.name FROM HV A, HV B WHERE IS_FOLLOWING(A.Node, B.Node)").collect()
+
+// Hierarchy self-join to get preceding
+sqlc.sql("SELECT A.name, B.name FROM HV A, HV B WHERE IS_PRECEDING(A.Node, B.Node)").collect()
+
+sqlc.sql("select * from addresses").show
+
+// Simple join of hierarchy view with another table
+sqlc.sql("SELECT A.name, B.address FROM HV A, addresses B WHERE A.id = B.id").collect()
+
+// Get ids of the children of the root.
+sqlc.sql("SELECT HV2.id as child FROM HV HV1, HV HV2 WHERE IS_CHILD(HV2.Node, HV1.Node) AND IS_ROOT(HV1.Node)").collect()
+
+// Get addresses of the children of the root.
+sqlc.sql("SELECT B.address FROM (SELECT HV2.id as child FROM HV HV1, HV HV2 WHERE IS_CHILD(HV2.Node, HV1.Node) AND IS_ROOT(HV1.Node)) A, addresses B WHERE A.child = B.id").collect()
+
+// Get names and addresses of 2nd level employees
+sqlc.sql("SELECT A.name, B.address FROM HV A, addresses B WHERE A.id = B.id AND LEVEL(A.Node) = 2").collect()
+
+// Get names and addresses of 3rd level employees
+sqlc.sql("SELECT A.name, B.address FROM HV A, addresses B WHERE A.id = B.id AND LEVEL(A.Node) = 3").collect()
