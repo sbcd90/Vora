@@ -1,0 +1,33 @@
+-- to start on CAL Single Node Machine
+http://???????:8080/
+hostname ???????
+sudo su -
+sudo /usr/sbin/ambari-server restart
+
+mkdir /home/vora/vora/
+tar -xvzf datasourcedist-1.1.7.tar.gz -C /home/vora/vora 
+cd /home/vora/vora/
+start-spark-shell.sh
+
+import com.sap.spark.vora.client._
+
+ClusterUtils.clearZooKeeperCatalog("??????:2181")
+
+exit
+
+Stop SAP HANA Vora Services in Ambari
+
+-- LOOK AT SERVICES ;
+-- http://??????:8080/api/v1/clusters/SHA/services/
+curl -u admin:admin -X DELETE -H 'X-Requested-By:admin' http://??????:8080/api/v1/clusters/SHA/services/VELOCITY
+
+-- SHOULD NOT USE FOLLOWING COMMAND, BUT CAN BE USED IN EMERGENCY
+-- login as ec2-user
+-- sudo rm -rf /var/lib/ambari-server/resources/stacks/HDP/2.2/services/VELOCITY
+
+sudo tar -xvzf ambaripkg-1.1-ms-2.tar.gz -C /var/lib/ambari-server/resources/stacks/HDP/2.2/services
+
+sudo /usr/sbin/ambari-server restart
+
+Re-install SAP HANA Vora Service ...
+Re-install SAP HANA Vora Extensions ...
