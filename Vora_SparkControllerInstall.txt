@@ -1,0 +1,170 @@
+***********************************************
+S P A R K   C O N T R O L L E R   I N S T A L L
+***********************************************
+
+###############################################
+In Ambari - install hive, pig, tez using ambari
+###############################################
+
+$$$$$$$$$$$$$$$
+$$ on master 
+$$$$$$$$$$$$$$$
+
+sudo /usr/sbin/ambari-server restart
+
+id -- should be ec2-user
+
+mkdir /home/ec2-user/media/sparkcontroller/
+cd /home/ec2-user/media/sparkcontroller/
+chmod 777 /home/ec2-user/media/sparkcontroller/
+clear
+ls
+
+-- downloads
+wget https://www.dropbox.com/??????/sap.hana.spark.controller-1.5.0-1.noarch.rpm?dl=0 -O sap.hana.spark.controller-1.5.0-1.noarch.rpm
+wget https://www.dropbox.com/??????/aws.resolver-0.0.3.jar?dl=0 -O aws.resolver-0.0.3.jar
+clear
+ls
+
+-- none-sap downloads
+wget https://www.dropbox.com/??????/spark-1.4.1-yarn-shuffle.jar?dl=0 -O spark-1.4.1-yarn-shuffle.jar
+wget https://www.dropbox.com/??????/spark-assembly-1.4.1-hadoop2.6.0.jar?dl=0 -O spark-assembly-1.4.1-hadoop2.6.0.jar
+clear
+ls
+
+mkdir /home/ec2-user/media/sparkcontroller/thirdparties
+cd /home/ec2-user/media/sparkcontroller/thirdparties
+wget https://www.dropbox.com/???????/datanucleus-api-jdo-4.0.4.jar?dl=0 -O datanucleus-api-jdo-4.0.4.jar
+wget https://www.dropbox.com/???????/datanucleus-core-4.0.4.jar?dl=0 -O datanucleus-core-4.0.4.jar
+wget https://www.dropbox.com/???????/datanucleus-rdbms-4.0.7.jar?dl=0 -O datanucleus-rdbms-4.0.7.jar
+wget https://www.dropbox.com/???????/joda-time-2.3.jar?dl=0 -O joda-time-2.3.jar
+clear
+ls 
+
+id -- should be ec2-user
+cd ..
+sudo rpm -i sap.hana.spark.controller-1.5.0-1.noarch.rpm
+-- to uninstall as sudo su -, rpm -qa *sap*, rpm -e sap.hana.spark.controller-1.5.0-1, 
+-- hdfs dfs -rm -r /sap (as hdfs user), hdfs dfs -rm -r /user/hanaes (as hdfs user),
+-- rm -r /usr/sap/
+
+id -- should be ec2-user
+clear
+cd /home/ec2-user/media/sparkcontroller/
+sudo cp aws.resolver-0.0.3.jar /usr/sap/spark/controller/lib/
+sudo ls /usr/sap/spark/controller/lib/
+sudo ls -l /usr/sap/spark/controller/lib/
+
+hostname -f = ?? ip-10-0-0-???.ec2.internal
+
+sudo vi /usr/sap/spark/controller/conf/hanaes-site.xml
+-- add host to file
+<property>
+    <name>sap.hana.es.driver.host</name>
+    <value>ip-10-0-0-???.ec2.internal</value>
+    <final>true</final>
+</property>
+
+-- new jar for aws public/private ip setting
+     <property>
+         <name>sap.hana.ar.provider </name>
+         <value>com.sap.hana.aws.extensions.AWSResolver</value>
+         <final>true</final>
+     </property> 
+
+-- the following 3 values depend on size of hadoop ;
+-- may also wanna change min/max executors ;
+    <property>
+       <name>spark.executor.memory</name>
+       <value>2g</value> 
+         <final>true</final>
+    </property>
+
+clear
+id -- should be ec2-user
+sudo -iu hdfs
+id -- should be hdfs
+hdfs dfs -ls /
+-- hdfs dfs -rm -r /sap/
+hdfs dfs -mkdir -p /sap/hana/spark/libs/
+hdfs dfs -put /home/ec2-user/media/sparkcontroller/spark-assembly-1.4.1-hadoop2.6.0.jar /sap/hana/spark/libs/
+hdfs dfs -ls /sap/hana/spark/libs/
+
+hdfs dfs -mkdir -p /sap/hana/spark/libs/thirdparty/
+hdfs dfs -put /home/ec2-user/media/sparkcontroller/thirdparties/* /sap/hana/spark/libs/thirdparty/
+hdfs dfs -ls /sap/hana/spark/libs/thirdparty/
+
+hdfs dfs -mkdir /user/hanaes
+hdfs dfs -chmod 666 /user/hanaes
+
+exit
+sudo su -
+su - hanaes
+clear
+
+cp /usr/hdp/2.2.8.0-3150/hive/conf/hive-site.xml /usr/sap/spark/controller/conf/
+cd /usr/sap/spark/controller/conf/
+ls
+-- should see hive-site.xml
+
+vi /usr/sap/spark/controller/conf/hive-site.xml
+
+-- In /usr/sap/spark/controller/conf/hive-site.xml, remove the trailing s in ;
+    <property>
+      <name>hive.metastore.client.connect.retry.delay</name>
+      <value>5s</value>
+    </property>
+
+    <property>
+      <name>hive.metastore.client.socket.timeout</name>
+      <value>1800s</value>
+    </property>
+
+-- as security not used in this version of hadoop, SEARCH make sure following set
+<property>      
+     <name>hive.security.authorization.manager</name>      
+     <value>org.apache.hadoop.hive.ql.security.authorization.DefaultHiveAuthorizationProvider</value>    
+</property>
+
+-- In /usr/sap/spark/controller/conf/hive-site.xml, make sure "mr" is specified ;
+    <property>
+      <name>hive.execution.engine</name>
+      <value>mr</value>
+    </property>
+
+-- make sure folder exists
+ls -l /usr/hdp/2.2.8.0-3150/hadoop-yarn/lib
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+$$ on each node incl. master $$
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+id -- should be ec2-user
+cd /home/ec2-user/media
+sudo wget https://www.dropbox.com/s/gwc15ewrosa9w3x/spark-1.4.1-yarn-shuffle.jar?dl=0 -O spark-1.4.1-yarn-shuffle.jar
+sudo cp /home/ec2-user/media/spark-1.4.1-yarn-shuffle.jar /usr/hdp/2.2.8.0-3150/hadoop-yarn/lib
+sudo ls /usr/hdp/2.2.8.0-3150/hadoop-yarn/lib/spark*
+
+<!--
+
+MapReduce2/Configs/“Advanced mapred-site”/“mapreduce.application.classpath”. 
+Replace any occurrence ${hdp.version} variable with appropriate Hortonworks Hadoop version number in map reduce class path property. 
+
+In the yarn-site.xml on each node, add spark_shuffle to yarn.nodemanager.aux-services 
+
+Set yarn.nodemanager.aux-services.spark_shuffle.class to org.apache.spark.network.yarn.YarnShuffleService
+
+-->
+
+rm -f /var/log/hanaes/hana_controller.log
+cd /usr/sap/spark/controller/bin/
+./hanaes stop
+./hanaes start
+tail -f /var/log/hanaes/hana_controller.log
+
+DROP REMOTE SOURCE SPARK CASCADE;
+CREATE REMOTE SOURCE "SPARK" ADAPTER "sparksql"
+CONFIGURATION 'port=7860;ssl_mode=disabled;server=????;'
+WITH CREDENTIAL TYPE 'PASSWORD' USING 'user=hduser;password=hduser';
+
+

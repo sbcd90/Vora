@@ -1,0 +1,36 @@
+
+*****************************************************************************
+V O R A   C O N F I G   O N   S P A R K   C O N T R O L L E R   I N S T A L L
+*****************************************************************************
+
+####################################
+MAKE SURE SPARK CONTROLLER INSTALLED
+####################################
+
+$$$$$$$$$$$$$$$
+$$ on master 
+$$$$$$$$$$$$$$$
+
+sudo vi /usr/sap/spark/controller/conf/hanaes-site.xml
+
+-- base sample for videos ;
+     <property>
+        <name>sap.hana.es.driver.host</name>
+        <value>IP_ADDRESS_OF_SPARK_CONTROLLER</value>
+        <final>true</final>
+     </property>
+     <property>
+        <name>spark.vora.hosts</name>
+        <value>IP_ADDRESSES_OF_VORA_HOSTS</value>
+        <final>true</final>
+     </property>
+     <property>
+        <name>spark.vora.zkurls</name>
+        <value>IP_ADDRESS_OF_ZOOKEEPERS</value>
+        <final>true</final>
+     </property>
+
+-- also copy datasources to controller/bin folder
+cp /home/vora/vora/lib/spark-sap-datasources-0.0.8-SNAPSHOT-assembly.jar /usr/sap/spark/controller/lib
+ls -l /usr/sap/spark/controller/lib/
+

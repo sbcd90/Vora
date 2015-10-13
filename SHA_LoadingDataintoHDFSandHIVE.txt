@@ -1,0 +1,21 @@
+-- put files in /home/ec2-user/media as ec2-user
+cd /home/ec2-user/media
+wget https://www.dropbox.com/s/h8b04ej9r2dopa2/SHA_create_employee_table.sql?dl=0 -O SHA_create_employee_table.sql
+wget https://www.dropbox.com/s/tj59coispq9kb8g/SHA_Employee.dat?dl=0 -O SHA_Employee.dat
+-- put files in /home/ec2-user/media as ec2-user
+
+sudo -iu hdfs
+cd /home/ec2-user/media
+hive -f SHA_create_employee_table.sql
+hdfs dfs -mkdir /apps/hive/warehouse/sha.db/
+hdfs dfs -put SHA_Employee.dat /apps/hive/warehouse/sha.db/employee
+hdfs dfs -ls /apps/hive/warehouse/sha.db/employee
+hdfs dfs -chown -R hive:hdfs /apps/hive/warehouse/sha.db
+
+hive
+show databases
+use sha
+show tables
+select * from employee
+exit
+exit
