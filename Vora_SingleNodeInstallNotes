@@ -248,7 +248,7 @@ sudo /usr/sbin/ambari-server restart
 -- add vora service in ambari as per videos
 
 ## for cloudera ##
-sudo tar -xvzf SAPHanaVora-el6-1.1-ms-2.tar.gz -C /opt/cloudera/
+sudo tar --strip-components=1 -xvzf SAPHanaVora-el6-1.1-ms-2.tar.gz -C /opt/cloudera/
 sudo service cloudera-scm-server restart
 -- make sure all services started
 -- add vora service in cloudera as per videos
