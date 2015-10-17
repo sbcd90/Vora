@@ -131,14 +131,14 @@ Setup HDFS for User Vora (also on master node)
 */
 
 sudo -iu hdfs
-hadoop fs -mkdir /user/vora
-hadoop fs -chown vora /user/vora
+hdfs dfs -mkdir /user/vora
+hdfs dfs -chown vora /user/vora
 exit
 -- validate with ;
 sudo -iu vora
 echo "1,2,Hello" > test.csv
-hadoop fs -put test.csv
-hadoop fs -cat /user/vora/test.csv
+hdfs dfs -put test.csv
+hdfs dfs -cat /user/vora/test.csv
 exit
 -- http://??????:8088/cluster/apps
 
