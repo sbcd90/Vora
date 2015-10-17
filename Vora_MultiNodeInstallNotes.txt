@@ -1,3 +1,22 @@
+#######################################################
+# MAKE SURE YOU ALSO SEE THE SINGLENODE INSTALL NOTES #
+#######################################################
+
+-- Install Files into /home/ec2-user/media
+-- You should get following files from the internet, but our team's Dropbox below should work ! 
+wget https://www.dropbox.com/s/big19drvsxz236p/SLES11-compat-c%2B%2B.tar?dl=0 -O SLES11-compat-c++.tar
+wget https://www.dropbox.com/s/8deklnjwgv5xt3n/spark-1.4.1-bin-hadoop2.6.tgz?dl=0 -O spark-1.4.1-bin-hadoop2.6.tgz
+wget https://www.dropbox.com/s/4s6ug9faofgohmd/zeppelin-0.5.0-incubating-JNA40.tar.gz?dl=0 -O zeppelin-0.5.0-incubating-JNA40.tar.gz
+
+-- see Video 1 for "official" download paths from SAP Service Market Place
+-- below for ambari
+wget https://www.dropbox.com/??????? -O ambaripkg-1.1-ms-2.tar.gz
+-- below for cloudera
+???
+
+wget https://www.dropbox.com/??????? -O datasourcedist-1.1.7.tar.gz
+ls
+
 == in AWS
 Create VPC 
 
@@ -38,7 +57,7 @@ cd /home/ec2-user/media
 pwd
 ls
 
-wget https://www.dropbox.com/??????/SLES11-compat-c%2B%2B.tar?dl=0 -O SLES11-compat-c++.tar
+wget https://www.dropbox.com/s/big19drvsxz236p/SLES11-compat-c%2B%2B.tar?dl=0 -O SLES11-compat-c++.tar
 ls
 
 mkdir /home/ec2-user/media/tmp
@@ -78,7 +97,7 @@ cd /home/ec2-user/media
 pwd
 ls
 
-wget https://www.dropbox.com/??????/SLES11-compat-c%2B%2B.tar?dl=0 -O SLES11-compat-c++.tar
+wget https://www.dropbox.com/s/big19drvsxz236p/SLES11-compat-c%2B%2B.tar?dl=0 -O SLES11-compat-c++.tar
 ls
 
 mkdir /home/ec2-user/media/tmp
@@ -133,5 +152,6 @@ Go to Browser (:7180)
 
 Do install. Don't forget to change NTP Thresholds
 
+-------- Go back to Single Node Install Videos for the Rest
 ------ Install Rest (Apache Spark, Vora, etc) on Master as per videos
--- Notes : Make sure Vora on ALL machines in Ambari when installing
+-- Notes : Make sure Vora on ALL hosts in Ambari/Clouera when installing
