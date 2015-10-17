@@ -93,6 +93,7 @@ sudo /usr/sbin/ambari-server start
 ################################################
 ## "Cloudera Install" Steps
 ################################################
+-- note; on testing, I have seen it is possible to have Cloudera on a single node, but best to install on a 3 node cluster
 
 sudo mkdir /data
 
