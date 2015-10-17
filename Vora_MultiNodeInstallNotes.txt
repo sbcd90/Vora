@@ -132,6 +132,7 @@ sudo /usr/sbin/ambari-server start
 +++++++++++++++
 CLOUDERA
 +++++++++++++++
+-- note; on testing, I have seen it is possible to have Cloudera on a single node, but best to install on a 3 node cluster
 
 sudo zypper addrepo -f http://archive.cloudera.com/cm5/sles/11/x86_64/cm/cloudera-manager.repo
 sudo zypper refresh
@@ -152,6 +153,6 @@ Go to Browser (:7180)
 
 Do install. Don't forget to change NTP Thresholds
 
--------- Go back to Single Node Install Videos for the Rest
------- Install Rest (Apache Spark, Vora, etc) on Master as per videos
+-------- Go back to Single Node Install Videos for the rest of the steps
+------ Install other pieces (Apache Spark, Vora, etc) on Master as per videos
 -- Notes : Make sure Vora on ALL hosts in Ambari/Clouera when installing
