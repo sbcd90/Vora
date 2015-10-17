@@ -10,11 +10,14 @@ pwd
 ls
 
 -- Install Files into /home/ec2-user/media
-wget https://www.dropbox.com/??????? -O SLES11-compat-c++.tar
-wget https://www.dropbox.com/??????? -O spark-1.4.1-bin-hadoop2.6.tgz
+-- You should get following files from the internet, but our team's Dropbox below should work ! 
+wget https://www.dropbox.com/s/big19drvsxz236p/SLES11-compat-c%2B%2B.tar?dl=0 -O SLES11-compat-c++.tar
+wget https://www.dropbox.com/s/8deklnjwgv5xt3n/spark-1.4.1-bin-hadoop2.6.tgz?dl=0 -O spark-1.4.1-bin-hadoop2.6.tgz
+wget https://www.dropbox.com/s/4s6ug9faofgohmd/zeppelin-0.5.0-incubating-JNA40.tar.gz?dl=0 -O zeppelin-0.5.0-incubating-JNA40.tar.gz
+
+-- see Video 1 for "official" download paths from SAP Service Market Place
 wget https://www.dropbox.com/??????? -O ambaripkg-1.1-ms-2.tar.gz
 wget https://www.dropbox.com/??????? -O datasourcedist-1.1.7.tar.gz
-wget https://www.dropbox.com/??????? -O zeppelin-0.5.0-incubating-JNA40.tar.gz
 ls
 
 /*
