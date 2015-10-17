@@ -146,7 +146,11 @@ export SPARK_HOME=/opt/spark/spark-1.4.1-bin-hadoop2.6
 export SPARK_CONF_DIR=$SPARK_HOME/conf
 export PATH=$PATH:$SPARK_HOME/bin
 
-## FOR CLOUDERA; also add the following to /opt/spark/spark-1.4.1-bin-hadoop2.6/bin/load-spark-env.sh ##
+## FOR CLOUDERA; also add the following paths to /opt/spark/spark-1.4.1-bin-hadoop2.6/conf/spark-env.sh ##
+cd /opt/spark/spark-1.4.1-bin-hadoop2.6/conf
+sudo cp spark-env.sh.template spark-env.sh
+-- add the following ;
+
 SPARK_DIST_CLASSPATH=$SPARK_HOME/lib/spark-assembly.jar
 SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/hadoop/lib/*
 SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/hadoop/*
