@@ -69,14 +69,15 @@ mkdir /home/ec2-user/media/tmp
 tar -xf SLES11-compat-c++.tar -C tmp
 sudo zypper -n install tmp/*rpm
 
-################################################
-## "Ambari Install" Steps
-################################################
-
 -- make sure you are cluster_admin
 sudo su -
 su - cluster_admin
 cd /etc/zypp/repos.d
+
+################################################
+## "Ambari Install" Steps
+################################################
+
 sudo wget http://public-repo-1.hortonworks.com/ambari/\suse11/1.x/updates/1.7.0/ambari.repo
 sudo zypper ref
 sudo zypper -n install ambari-server
@@ -85,6 +86,30 @@ sudo /usr/sbin/ambari-server setup
 sudo /usr/sbin/ambari-server start
 
 -- Install HDFS, Yarn, Zookeeper in Ambari
+
+################################################
+## "Cloudera Install" Steps
+################################################
+
+sudo mkdir /data
+
+sudo zypper addrepo -f http://archive.cloudera.com/cm5/sles/11/x86_64/cm/cloudera-manager.repo
+sudo zypper refresh
+Type 'a'
+sudo zypper install oracle-j2sdk1.7 cloudera-manager-daemons \
+cloudera-manager-server cloudera-manager-agent cloudera-manager-daemons \
+cloudera-manager-server-db-2 avro-tools crunch flume-ng hadoop-hdfs-fuse \
+hadoop-hdfs-nfs3 hadoop-httpfs hadoop-kms hbase-solr hive-hbase hive-webhcat \
+hue-beeswax hue-hbase hue-impala hue-pig hue-plugins hue-rdbms hue-search \
+hue-spark hue-sqoop hue-zookeeper impala impala-shell kite llama mahout oozie \
+pig pig-udf-datafu search sentry solr-mapreduce spark-core spark-master \
+spark-worker spark-history-server spark-python sqoop sqoop2 whirr
+
+sudo /etc/init.d/cloudera-scm-server-db start
+sudo /etc/init.d/cloudera-scm-server start
+
+-- Go to Browser (:7180) and make sure cloudera manager comes up. Allow a few seconds ... 
+-- Do install. Don't forget to change NTP Thresholds
 
 ################################################
 ## "Spark Install" Steps
@@ -100,12 +125,39 @@ sudo tar -xvzf spark-1.4.1-bin-hadoop2.6.tgz -C /opt/spark
 sudo vi /etc/bash.bashrc
 -- Type G, I (in VI)
 Paste ;
+## Paths in bash.bashrc FOR AMBARI ##
 export LD_LIBRARY_PATH=/usr/lib/hadoop/lib/native
 export JAVA_HOME=/usr/jdk64/jdk1.7.0_67
 export HADOOP_CONF_DIR=/etc/hadoop/conf
 export SPARK_HOME=/opt/spark/spark-1.4.1-bin-hadoop2.6
 export SPARK_CONF_DIR=$SPARK_HOME/conf
 export PATH=$PATH:$SPARK_HOME/bin
+
+## Paths in bash.bashrc FOR CLOUDERA ##
+export LD_LIBRARY_PATH=/opt/cloudera/parcels/CDH/lib/hadoop/lib/native
+export JAVA_HOME=/usr/java/jdk1.7.0_67-cloudera
+export HADOOP_PARCEL_PATH=/opt/cloudera/parcels/CDH
+export HADOOP_CONF_DIR=/etc/hadoop/conf
+export SPARK_HOME=/opt/spark/spark-1.4.1-bin-hadoop2.6
+export SPARK_CONF_DIR=$SPARK_HOME/conf
+export PATH=$PATH:$SPARK_HOME/bin
+
+## FOR CLOUDERA; also add the following to /opt/spark/spark-1.4.1-bin-hadoop2.6/bin/spark-env.sh ##
+SPARK_DIST_CLASSPATH=$SPARK_HOME/lib/spark-assembly.jar
+SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/hadoop/lib/*
+SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/hadoop/*
+SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/hadoop-hdfs/lib/*
+SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/hadoop-hdfs/*
+SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/hadoop-mapreduce/lib/*
+SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/hadoop-mapreduce/*
+SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/hadoop-yarn/lib/*
+SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/hadoop-yarn/*
+SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/hive/lib/*
+SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/flume-ng/lib/*
+SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/parquet/lib/*
+SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HADOOP_PARCEL_PATH/lib/avro/lib/*
+export SPARK_DIST_CLASSPATH
+
 exit 
 -- exit cluster_admin, and go back in as cluster_admin
 su - cluster_admin
@@ -120,9 +172,9 @@ spark.driver.extraJavaOptions -Dhdp.version=2.2.0.0-2041
 spark.executor.memory 512m
 spark.executor.cores 2
 spark.master yarn-client
-spark.velocity.hosts <comma separated list of FQDN of worker nodes>
-spark.velocity.namenodeurl <FQDN of master node>:8020
-spark.velocity.zkurls <FQDN of master node>:2181
+spark.vora.hosts <comma separated list of FQDN of worker nodes>
+spark.vora.namenodeurl <FQDN of master node>:8020
+spark.vora.zkurls <FQDN of master node>:2181
 spark.yarn.am.extraJavaOptions -Dhdp.version=2.2.0.0-2041
 spark.yarn.queue default
 
