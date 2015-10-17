@@ -177,7 +177,7 @@ spark.driver.extraJavaOptions -Dhdp.version=2.2.0.0-2041
 spark.executor.memory 512m
 spark.executor.cores 2
 spark.master yarn-client
-spark.vora.hosts <comma separated list of FQDN of worker nodes>
+spark.vora.hosts <comma separated list of FQDN of worker nodes>:2022
 spark.vora.namenodeurl <FQDN of master node>:8020
 spark.vora.zkurls <FQDN of master node>:2181
 spark.yarn.am.extraJavaOptions -Dhdp.version=2.2.0.0-2041
@@ -189,7 +189,7 @@ spark.driver.extraJavaOptions -Dhdp.version=2.2.0.0-2041
 spark.executor.memory 4g
 spark.executor.cores 2
 spark.master yarn-client
-spark.vora.hosts <comma separated list of DNS name of worker nodes>
+spark.vora.hosts <comma separated list of DNS name of worker nodes>:2022
 spark.vora.namenodeurl <DNS name of master node>:8020
 spark.vora.zkurls <DNS name of master node>:2181
 spark.yarn.am.extraJavaOptions -Dhdp.version=2.2.0.0-2041
