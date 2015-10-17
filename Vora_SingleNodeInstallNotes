@@ -88,7 +88,7 @@ sudo /usr/sbin/ambari-server setup
 
 sudo /usr/sbin/ambari-server start
 
--- Install HDFS, Yarn, Zookeeper in Ambari
+-- Install HDFS, Yarn, Zookeeper in Ambari as per videos.
 
 ################################################
 ## "Cloudera Install" Steps
@@ -113,7 +113,7 @@ sudo /etc/init.d/cloudera-scm-server-db start
 sudo /etc/init.d/cloudera-scm-server start
 
 -- Go to Browser (:7180) and make sure cloudera manager comes up. Allow a few seconds ... 
--- Do install. Don't forget to change NTP Thresholds
+-- Do install as per videos. Don't forget to change NTP Thresholds.
 
 ################################################
 ## "Spark Install" Steps
@@ -241,11 +241,17 @@ id
 cd /home/ec2-user/media
 ls
 
+## for ambari ##
 sudo tar -xvzf ambaripkg-1.1-ms-2.tar.gz -C /var/lib/ambari-server/resources/stacks/HDP/2.2/services
-
 sudo /usr/sbin/ambari-server restart
 -- make sure all services started
--- add vora service in ambari
+-- add vora service in ambari as per videos
+
+## for cloudera ##
+sudo tar -xvzf SAPHanaVora-el6-1.1-ms-2.tar.gz -C /opt/cloudera/
+sudo service cloudera-scm-server restart
+-- make sure all services started
+-- add vora service in cloudera as per videos
 
 -- now to download Spark Vora Data Source "the extension"
 sudo -iu vora
