@@ -21,23 +21,25 @@ clear
 ls
 
 -- downloads
+-- see Video 1 for the Official Downloads link on SAP Service Market Place
 wget https://www.dropbox.com/??????/sap.hana.spark.controller-1.5.0-1.noarch.rpm?dl=0 -O sap.hana.spark.controller-1.5.0-1.noarch.rpm
 wget https://www.dropbox.com/??????/aws.resolver-0.0.3.jar?dl=0 -O aws.resolver-0.0.3.jar
 clear
 ls
 
--- none-sap downloads
-wget https://www.dropbox.com/??????/spark-1.4.1-yarn-shuffle.jar?dl=0 -O spark-1.4.1-yarn-shuffle.jar
-wget https://www.dropbox.com/??????/spark-assembly-1.4.1-hadoop2.6.0.jar?dl=0 -O spark-assembly-1.4.1-hadoop2.6.0.jar
+-- none-sap downloads, which you can either download from the web or try connecting to our team's dropbox
+wget https://www.dropbox.com/s/apybr4ljruovbpb/spark-1.4.1-yarn-shuffle.jar?dl=0 -O spark-1.4.1-yarn-shuffle.jar
+wget https://www.dropbox.com/s/ffri8i8p3fuocsf/spark-assembly-1.4.1-hadoop2.6.0.jar?dl=0 -O spark-assembly-1.4.1-hadoop2.6.0.jar
 clear
 ls
 
+-- none-sap downloads, which you can either download from the web or try connecting to our team's dropbox
 mkdir /home/ec2-user/media/sparkcontroller/thirdparties
 cd /home/ec2-user/media/sparkcontroller/thirdparties
-wget https://www.dropbox.com/???????/datanucleus-api-jdo-4.0.4.jar?dl=0 -O datanucleus-api-jdo-4.0.4.jar
-wget https://www.dropbox.com/???????/datanucleus-core-4.0.4.jar?dl=0 -O datanucleus-core-4.0.4.jar
-wget https://www.dropbox.com/???????/datanucleus-rdbms-4.0.7.jar?dl=0 -O datanucleus-rdbms-4.0.7.jar
-wget https://www.dropbox.com/???????/joda-time-2.3.jar?dl=0 -O joda-time-2.3.jar
+wget https://www.dropbox.com/s/a45l5c1lld6md40/datanucleus-api-jdo-4.0.4.jar?dl=0 -O datanucleus-api-jdo-4.0.4.jar
+wget https://www.dropbox.com/s/cwonsu24qum4zfo/datanucleus-core-4.0.4.jar?dl=0 -O datanucleus-core-4.0.4.jar
+wget https://www.dropbox.com/s/johodl4y5kn31z3/datanucleus-rdbms-4.0.7.jar?dl=0 -O datanucleus-rdbms-4.0.7.jar
+wget https://www.dropbox.com/s/iqfr7nezcsjzvay/joda-time-2.3.jar?dl=0 -O joda-time-2.3.jar
 clear
 ls 
 
@@ -141,7 +143,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 id -- should be ec2-user
 cd /home/ec2-user/media
-sudo wget https://www.dropbox.com/s/gwc15ewrosa9w3x/spark-1.4.1-yarn-shuffle.jar?dl=0 -O spark-1.4.1-yarn-shuffle.jar
+sudo wget https://www.dropbox.com/s/apybr4ljruovbpb/spark-1.4.1-yarn-shuffle.jar?dl=0 -O spark-1.4.1-yarn-shuffle.jar
 sudo cp /home/ec2-user/media/spark-1.4.1-yarn-shuffle.jar /usr/hdp/2.2.8.0-3150/hadoop-yarn/lib
 sudo ls /usr/hdp/2.2.8.0-3150/hadoop-yarn/lib/spark*
 
