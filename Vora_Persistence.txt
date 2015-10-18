@@ -1,0 +1,44 @@
+==================
+== LOG OUT & IN ==
+==================
+
+import org.apache.spark.sql._
+val sqlContext = new SapSQLContext (sc)
+
+sqlContext.sql("show tables").show
+
+val ZOOKEEPER_NODE = "??.??.??.??:2181"
+val NAME_NODE = "??.??.??.??:8020"
+
+sqlContext.sql( s"""
+SHOW DATASOURCETABLES 
+USING com.sap.spark.vora
+OPTIONS
+(zkurls "${ZOOKEEPER_NODE}",
+namenodeurl "${NAME_NODE}")
+""".stripMargin ).collect
+
+sqlContext.sql("show tables").show
+
+sqlContext.sql( s"""
+REGISTER ALL TABLES 
+USING com.sap.spark.vora
+OPTIONS
+(zkurls "${ZOOKEEPER_NODE}",
+namenodeurl "${NAME_NODE}")
+IGNORING CONFLICTS
+""".stripMargin )
+
+sqlContext.sql("show tables").show
+
+sqlContext.sql("select * from VORA_DATA").show
+
+-- IF YOU REALLY WANT TO DELETE ALL OBJECTS FROM ZOOKEEPER, RUN BELOW
+zookeeper-client
+ls /
+rmr /com
+ls /
+
+-- IF YOU REALLY WANT TO RESET METASTORE DB, RUN BELOW
+rm -r ../metastore_db/
+rm -r ../derby.log
