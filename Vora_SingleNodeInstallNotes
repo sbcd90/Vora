@@ -16,7 +16,13 @@ wget https://www.dropbox.com/s/8deklnjwgv5xt3n/spark-1.4.1-bin-hadoop2.6.tgz?dl=
 wget https://www.dropbox.com/s/4s6ug9faofgohmd/zeppelin-0.5.0-incubating-JNA40.tar.gz?dl=0 -O zeppelin-0.5.0-incubating-JNA40.tar.gz
 
 -- see Video 1 for "official" download paths from SAP Service Market Place
+-- Ambari Package for SAP HANA Vora Service (version below may not be latest version)
 wget https://www.dropbox.com/??????? -O ambaripkg-1.1-ms-2.tar.gz
+
+-- Cloudera Package for SAP HANA Vora Service (version below may not be latest version)
+wget https://www.dropbox.com/??????? -O SAPHanaVora-sles11-1.1-ms-2.tar.gz
+
+-- SAP HANA Vora Extensions (version below may not be latest version)
 wget https://www.dropbox.com/??????? -O datasourcedist-1.1.7.tar.gz
 ls
 
@@ -248,7 +254,7 @@ sudo /usr/sbin/ambari-server restart
 -- add vora service in ambari as per videos
 
 ## for cloudera ##
-sudo tar --strip-components=1 -xvzf SAPHanaVora-el6-1.1-ms-2.tar.gz -C /opt/cloudera/
+sudo tar --strip-components=1 -xvzf SAPHanaVora-sles11-1.1-ms-2.tar.gz -C /opt/cloudera/
 sudo service cloudera-scm-server restart
 -- make sure all services started
 -- add vora service in cloudera as per videos
