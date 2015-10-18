@@ -6,4 +6,4 @@ Happy Vora'ing !
 
 Cheers
 
-Bob
+The SAP HANA Academy Team
