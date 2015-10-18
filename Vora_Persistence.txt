@@ -52,11 +52,16 @@ import com.sap.spark.vora.client._
 
 ClusterUtils.clearZooKeeperCatalog("??.??.??.??:2181")
 
+================
+== EXIT SCALA ==
+================
+
 -- IF YOU REALLY WANT TO DELETE ALL OBJECTS FROM ZOOKEEPER, RUN BELOW
 zookeeper-client
 ls /
 rmr /com
 ls /
+quit
 
 -- IF YOU REALLY WANT TO RESET METASTORE DB, RUN BELOW
 rm -r ../metastore_db/
