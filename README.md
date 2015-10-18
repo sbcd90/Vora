@@ -7,3 +7,4 @@ Happy Vora'ing !
 Cheers
 
 The SAP HANA Academy Team
+(academy.saphana.com)
