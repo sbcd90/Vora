@@ -1,3 +1,11 @@
+sqlContext.sql("show tables").show
+
+sqlContext.sql("SELECT * FROM HANA_DATA").show
+
+sqlContext.sql("SELECT * FROM SPARK_DATA").show
+
+sqlContext.sql("SELECT * FROM VORA_DATA").show
+
 val VORA_TABLE_PREFIX = "VORA_"
 
 sqlContext.sql( s"""
