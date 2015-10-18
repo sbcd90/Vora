@@ -12,7 +12,7 @@ wget https://www.dropbox.com/s/4s6ug9faofgohmd/zeppelin-0.5.0-incubating-JNA40.t
 -- below for ambari
 wget https://www.dropbox.com/??????? -O ambaripkg-1.1-ms-2.tar.gz
 -- below for cloudera
-???
+wget https://www.dropbox.com/??????? -O SAPHanaVora-sles11-1.1-ms-2.tar.gz
 
 wget https://www.dropbox.com/??????? -O datasourcedist-1.1.7.tar.gz
 ls
