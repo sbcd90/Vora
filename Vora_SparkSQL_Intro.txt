@@ -1,0 +1,99 @@
+/*
+-- reset
+rm /home/vora/sparkdata.csv
+hdfs dfs -rm /user/vora/sparkdata.csv
+rm /home/vora/voradata.csv
+hdfs dfs -rm /user/vora/voradata.csv
+hdfs dfs -ls /user/vora
+ls -l /home/vora
+
+-- sqlContext.sql(s"""drop table SPARK_DATA""")
+-- sqlContext.sql(s"""drop table VORA_DATA""")
+*/
+
+sudo su -
+su - vora
+sh start-spark-shell.sh
+CRTL-L
+
+============== 
+== IN SCALA ==
+============== 
+
+import org.apache.spark.sql._
+val sqlContext = new SapSQLContext (sc)
+
+sqlContext.sql("show tables").show
+
+==============
+== IN SHELL ==
+==============
+
+sudo su - 
+su - vora
+ls
+hdfs dfs -ls /user/vora
+echo "1,Burgers" > /home/vora/voradata.csv
+hdfs dfs -put /home/vora/voradata.csv
+hdfs dfs -cat /user/vora/voradata.csv
+
+============== 
+== IN SCALA ==
+============== 
+
+val testsql = """
+CREATE TEMPORARY TABLE VORA_DATA (id int, product string)
+USING com.sap.spark.vora
+OPTIONS (
+tableName "VORA_DATA",
+paths "/user/vora/voradata.csv"
+)"""
+
+sqlContext.sql(testsql).show
+
+sqlContext.sql("show tables").show
+
+sqlContext.sql("SELECT * FROM VORA_DATA").show
+
+==================
+== IN NEW SHELL ==
+==================
+
+hdfs dfs -ls /user/vora
+echo "1,Bob,Manchester,UK,Europe" > /home/vora/sparkdata.csv
+hdfs dfs -put /home/vora/sparkdata.csv
+hdfs dfs -cat /user/vora/sparkdata.csv
+
+============== 
+== IN SCALA ==
+============== 
+
+case class Spark_Data(
+      id: Integer,
+      user: String,
+      city: String,
+      country: String,
+      continent: String
+    )
+
+val HDFS_NAMENODE = "??.??.??.??:8020"
+val TPCH_DATA_PATH = "/user/vora/"
+
+val spark_dataText = sc.textFile( s"hdfs://${HDFS_NAMENODE}${TPCH_DATA_PATH}sparkdata.csv" )
+
+import sqlContext.implicits._
+
+    val spark_datardd = spark_dataText.map(s => s.split(",")).map( s => Spark_Data(
+                s(0).toInt,
+                s(1),
+                s(2),
+                s(3),
+                s(4)
+         )
+).toDF
+
+spark_datardd.registerTempTable("SPARK_DATA")
+
+sqlContext.sql("show tables").show
+
+sqlContext.sql("select * from SPARK_DATA").show
