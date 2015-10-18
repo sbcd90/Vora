@@ -1,0 +1,16 @@
+val VORA_TABLE_PREFIX = "VORA_"
+
+sqlContext.sql( s"""
+  SELECT
+    SPARK_DATA.user    AS User,
+    ${HANA_TABLE_PREFIX}DATA.quantity    AS Quantity,
+    ${VORA_TABLE_PREFIX}DATA.product   AS Product
+  FROM
+     SPARK_DATA,
+     ${HANA_TABLE_PREFIX}DATA,
+     ${VORA_TABLE_PREFIX}DATA
+  WHERE
+    SPARK_DATA.id = ${HANA_TABLE_PREFIX}DATA.userid AND
+    ${HANA_TABLE_PREFIX}DATA.productid = ${VORA_TABLE_PREFIX}DATA.id
+LIMIT 10
+""".stripMargin ).collect()
