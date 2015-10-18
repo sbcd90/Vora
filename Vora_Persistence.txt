@@ -1,8 +1,11 @@
+sqlContext.sql("show tables").show
+
 ==================
 == LOG OUT & IN ==
 ==================
 
 import org.apache.spark.sql._
+
 val sqlContext = new SapSQLContext (sc)
 
 sqlContext.sql("show tables").show
@@ -33,6 +36,22 @@ sqlContext.sql("show tables").show
 
 sqlContext.sql("select * from VORA_DATA").show
 
+sqlContext.sql("drop table VORA_DATA").show
+
+sqlContext.sql( s"""
+REGISTER ALL TABLES 
+USING com.sap.spark.vora
+OPTIONS
+(zkurls "${ZOOKEEPER_NODE}",
+namenodeurl "${NAME_NODE}")
+IGNORING CONFLICTS
+""".stripMargin )
+
+-- IF YOU REALLY WANT TO DELETE ALL OBJECTS FROM ZOOKEEPER IN SHELL, RUN BELOW
+import com.sap.spark.vora.client._
+
+ClusterUtils.clearZooKeeperCatalog("??.??.??.??:2181")
+
 -- IF YOU REALLY WANT TO DELETE ALL OBJECTS FROM ZOOKEEPER, RUN BELOW
 zookeeper-client
 ls /
@@ -42,3 +61,4 @@ ls /
 -- IF YOU REALLY WANT TO RESET METASTORE DB, RUN BELOW
 rm -r ../metastore_db/
 rm -r ../derby.log
+
