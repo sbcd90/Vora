@@ -24,6 +24,7 @@ ls
 -- see Video 1 for the Official Downloads link on SAP Service Market Place
 wget https://www.dropbox.com/??????/sap.hana.spark.controller-1.5.0-1.noarch.rpm?dl=0 -O sap.hana.spark.controller-1.5.0-1.noarch.rpm
 wget https://www.dropbox.com/??????/aws.resolver-0.0.3.jar?dl=0 -O aws.resolver-0.0.3.jar
+(email us at the hanaacademy@sap.com if you cannot obtain this file from SMP)
 clear
 ls
 
