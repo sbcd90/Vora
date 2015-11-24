@@ -1,0 +1,103 @@
+============
+=== reset ==
+============
+
+sudo su -
+su - vora
+rm /home/vora/nation.gz.orc
+rm /home/vora/region.snappy.parquet
+ls -l
+hdfs dfs -rm /user/vora/nation.gz.orc
+hdfs dfs -rm /user/vora/region.snappy.parquet
+hdfs dfs -ls /user/vora/
+exit
+exit
+exit
+
+================
+=== resetdone ==
+================
+
+https://orc.apache.org/
+wget https://www.dropbox.com/s/7z3nv325svif94g/nation.gz.orc?dl=0 -O nation.gz.orc
+
+https://parquet.apache.org/documentation/latest/
+wget https://www.dropbox.com/s/cc56darf90wdr82/region.snappy.parquet?dl=0 -O region.snappy.parquet
+
+
+hdfs dfs -ls /
+hdfs dfs -ls /user/vora/
+hdfs dfs -put nation.gz.orc
+hdfs dfs -put region.snappy.parquet
+hdfs dfs -ls /user/vora/
+
+cd vora/bin
+sh start-spark-shell.sh
+
+import org.apache.spark.sql._
+
+val sqlContext = new SapSQLContext(sc)
+
+sqlContext.sql( s"""
+CREATE TABLE NATION_ORC (
+N_NATIONKEY INTEGER,
+N_NAME VARCHAR(25),
+N_REGIONKEY INTEGER,
+N_COMMENT VARCHAR(152)
+)
+USING
+com.sap.spark.vora
+OPTIONS (
+tableName "NATION_ORC",
+paths "/user/vora/nation.gz.orc",
+zkurls "????:2181",
+namenodeurl "????:8020",
+hosts "????",
+format "orc"
+)
+""".stripMargin )
+
+sqlContext.sql( s"""
+CREATE TABLE REGION_PARQUET (
+R_REGIONKEY INTEGER,
+R_NAME VARCHAR(25),
+R_COMMENT VARCHAR(152)
+)
+USING
+com.sap.spark.vora
+OPTIONS (
+tableName "REGION_PARQUET",
+paths "/user/vora/region.snappy.parquet",
+zkurls "????:2181",
+namenodeurl "????:8020",
+hosts "????",
+format "parquet"
+)
+""".stripMargin )
+
+/*
+sqlContext.sql( s"""
+DROP TABLE NATION_ORC
+""".stripMargin
+).show
+
+sqlContext.sql( s"""
+DROP TABLE REGION_PARQUET
+""".stripMargin
+).show
+*/
+
+sqlContext.sql( s"""
+SHOW TABLES
+""".stripMargin
+).show
+
+sqlContext.sql( s"""
+SELECT N_NAME FROM NATION_ORC
+""".stripMargin
+).show
+
+sqlContext.sql( s"""
+SELECT R_NAME FROM REGION_PARQUET
+""".stripMargin
+).show
