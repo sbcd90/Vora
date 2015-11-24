@@ -1,0 +1,123 @@
+============
+=== reset ==
+============
+
+sudo su -
+su - vora
+
+rm /home/vora/footyrichlistdata.csv
+hdfs dfs -rm /user/vora/footyrichlistdata.csv
+rm /home/vora/morefootyrichlistdata.csv
+rm /home/vora/evenmorefootyrichlistdata.csv
+hdfs dfs -rm /user/vora/morefootyrichlistdata.csv
+hdfs dfs -rm /user/vora/evenmorefootyrichlistdata.csv
+ls -l *.csv
+hdfs dfs -ls /user/vora
+
+================
+=== resetdone ==
+================
+
+===================
+== Drivers Video ==
+===================
+
+jdbc:spark://????:10000/default;CatalogSchemaSwitch=0;UseNativeQuery=1
+
+com.simba.spark.jdbc4.Driver
+
+#####
+
+==================
+== Lumira Video ==
+==================
+
+sudo su -
+su - vora
+
+vi footyrichlistdata.csv
+Inter Milan,164,18.8,84.7,60.5
+Galatasaray,161.9,47.1,47.7,67.1
+Newcastle United,155,31.4,93.5,30.6
+Everton,144,23.1,105.8,15.2
+Chelsea,387,84.4,167.3,136.7
+Arsenal,359.6,119.8,147.3,92.3
+Liverpool,305.9,61,120.8,124.1
+
+clear
+
+hdfs dfs -put footyrichlistdata.csv
+hdfs dfs -cat /user/vora/footyrichlistdata.csv
+
+clear
+
+cd vora/bin
+ls
+sh start-sapthriftserver.sh
+
+-- new session
+sudo su -
+su - vora
+clear
+beeline 
+!connect jdbc:hive2://????:10000
+
+#####
+DROP TABLE footballrichlisttable;
+
+CREATE TABLE footballrichlisttable 
+(Club string, Revenue double, MatchDay double, Broadcasting double, Commercial double)
+USING com.sap.spark.vora
+OPTIONS (
+tableName "footballrichlisttabl",
+paths "/user/vora/footyrichlistdata.csv"
+);
+
+show tables;
+
+#####
+
+/*
+-- as long as thriftserver started, then no need to register tables. Only if stopped, then started
+REGISTER ALL TABLES 
+USING com.sap.spark.vora
+OPTIONS
+(zkurls "????:2181",
+namenodeurl "????:8020");
+*/
+
+==================
+== Append Video ==
+==================
+
+vi morefootyrichlistdata.csv
+Juventus,279.4,41,153.4,85
+FC Barcelona,484.6,116.8,182.1,185.7
+Paris Saint Germain,474.2,63.1,83.4,327.7
+Manchester City,414.4,56.8,159.3,198.5
+Borussia Dortmund,261.5,56.1,81.5,123.9
+AC Milan,249.7,24.9,122.7,102.1
+Manchester United,518,129.6,162.3,226.4
+
+vi evenmorefootyrichlistdata.csv
+Tottenham,215.8,52.5,113.3,50
+Real Madrid,549.5,113.8,204.2,231.5
+FC Bayern Munich,487.5,88,107.7,291.8
+FC Schalke,213.9,41.1,68.5,104.3
+Atletico Madrid,169.7,32.5,96.5,40.9
+Napoli,164.8,20.9,107.1,36.8
+
+hdfs dfs -put morefootyrichlistdata.csv
+hdfs dfs -put evenmorefootyrichlistdata.csv
+hdfs dfs -cat /user/vora/morefootyrichlistdata.csv
+hdfs dfs -cat /user/vora/evenmorefootyrichlistdata.csv
+
+-- in beeline
+
+APPEND TABLE footballrichlisttable  OPTIONS (paths "/user/vora/morefootyrichlistdata.csv");
+
+-- refresh report in lumira
+
+APPEND TABLE footballrichlisttable  OPTIONS (paths "/user/vora/evenmorefootyrichlistdata.csv");
+
+-- refresh report in lumira
