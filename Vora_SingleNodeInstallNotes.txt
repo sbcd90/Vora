@@ -384,11 +384,12 @@ OPTIONS (
 --
 
 -- hdfs file
-%velo CREATE TEMPORARY TABLE testtablehdfs (
+-- note that in earlier versions of the video %vora below might have been %velo
+%vora CREATE TEMPORARY TABLE testtablehdfs (
   a1 int, 
   a2 int, 
   a3 string
-  ) USING com.sap.spark.velocity
+  ) USING com.sap.spark.vora
 OPTIONS (
   tableName "testtablehdfs",
   paths "/user/vora/test.csv",
