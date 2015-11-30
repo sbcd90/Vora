@@ -20,10 +20,14 @@ Stop SAP HANA Vora Services in Ambari
 -- LOOK AT SERVICES ;
 -- http://??????:8080/api/v1/clusters/SHA/services/
 curl -u admin:admin -X DELETE -H 'X-Requested-By:admin' http://??????:8080/api/v1/clusters/SHA/services/VELOCITY
+or
+curl -u admin:admin -X DELETE -H 'X-Requested-By:admin' http://??????:8080/api/v1/clusters/SHA/services/VORA
 
 -- SHOULD NOT USE FOLLOWING COMMAND, BUT CAN BE USED IN EMERGENCY
 -- login as ec2-user
 -- sudo rm -rf /var/lib/ambari-server/resources/stacks/HDP/2.2/services/VELOCITY
+-- or
+-- sudo rm -rf /var/lib/ambari-server/resources/stacks/HDP/2.2/services/VORA
 
 sudo tar -xvzf ambaripkg-1.1-ms-2.tar.gz -C /var/lib/ambari-server/resources/stacks/HDP/2.2/services
 
