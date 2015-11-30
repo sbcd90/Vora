@@ -363,7 +363,8 @@ $ZEPPELIN_HOME/bin/zeppelin-daemon.sh start
 -- create a note, add following 2 scripts ;
 
 -- from local file
-%velo CREATE TEMPORARY TABLE testtablelocal (
+-- note that in earlier versions of the video %vora below might have been %velo
+%vora CREATE TEMPORARY TABLE testtablelocal (
   a1 int, 
   a2 int, 
   a3 string
@@ -375,9 +376,11 @@ OPTIONS (
   csvdelimiter ","
 )
 
-%velo SHOW TABLES
+-- note that in earlier versions of the video %vora below might have been %velo
+%vora SHOW TABLES
 
-%velo SELECT * FROM testtablelocal
+-- note that in earlier versions of the video %vora below might have been %velo
+%vora SELECT * FROM testtablelocal
 
 --
 -- show sudo vi $SPARK_HOME/conf/spark-defaults.conf to see hosts
@@ -399,6 +402,8 @@ OPTIONS (
   csvdelimiter ","
 )
 
-%velo SHOW TABLES
+-- note that in earlier versions of the video %vora below might have been %velo
+%vora SHOW TABLES
 
-%velo SELECT * FROM testtablehdfs
+-- note that in earlier versions of the video %vora below might have been %velo
+%vora SELECT * FROM testtablehdfs
