@@ -97,6 +97,19 @@ val HANA_LOAD_OPTIONS = Map(
       orderdate: Date,
       quantity: Integer
     )
+    
+    
+-------------------------------------------------------
+    alternative script
+    
+    val data = Array(1, 2)
+    val hana_dataText = sc.parallelize(data)
+    
+    val hana_datardd = hana_dataText.map( s => Hana_Data(
+        s,
+        s + 1
+    )).toDF
+-------------------------------------------------------    
 
     val hana_dataText = sc.textFile( s"hdfs://${HDFS_NAMENODE}${TPCH_DATA_PATH}hanadata.csv" )
 
